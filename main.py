@@ -1,33 +1,60 @@
-from time import sleep
 import numpy as np
-from scipy import signal
-from icecream import ic
-import os
+import scipy.signal as signal
 
-class GameOfLifeBoard():
-    def __init__(self) -> None:
-        self.dim = 10
-        self.board = np.zeros((self.dim, self.dim), dtype=np.int16)
-        self.stalemate = False
-        ic(self.board.shape)
-        self.kernel = np.array( [[1,1,1], [1,1,1], [1,1,1]])
-    def timestep(self):
-        if not self.stalemate:
-            temp = self.board
-            self.board = signal.convolve2d(self.board, self.kernel, mode='same')
-            # ic(self.board)
-            self.board[self.board<3] = self.board[self.board>4] = 0
-            self.board[self.board>=3] = 1
-            ic(temp==self.board)
-            # if (temp==self.board).all():
-            #     self.stalemate=True
 
-if __name__=="__main__":
-    os.system('cls' if os.name == 'nt' else 'clear')
-    newgame = GameOfLifeBoard()
-    newgame.board[4:6,5] = 1
-    # for i in range(10):
-    while(True):
-        ic(newgame.board)
-        newgame.timestep()
-        sleep(0.5)
+class GameOfLife:
+    kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
+
+    def __init__(self, state=None, grid_shape=10):
+        self.grid_shape = grid_shape
+        if state is None:
+            self.grid = np.random.randint(0, 2, (grid_shape, grid_shape))
+        else:
+            self.grid = state
+        # self.grid = np.zeros((grid_shape, grid_shape))
+        # self.grid[3:6, 3] = 1
+
+    def update(self):
+        neighbor_count = signal.convolve2d(self.grid, self.kernel, mode="same")
+        ones = np.multiply(neighbor_count, self.grid)
+        ones[ones < 2] = 0
+        ones[ones > 3] = 0
+        ones[ones != 0] = 1
+
+        zeros = np.multiply(
+            neighbor_count, np.ones_like(self.grid) - self.grid)
+        zeros[zeros != 3] = 0
+        zeros[zeros == 3] = 1
+        self.grid = np.add(ones, zeros)
+
+    def get_grid(self):
+        return self.grid
+
+    def get_state(self):
+        return self.grid
+
+    def set_state(self, state):
+        self.grid = state
+
+    def reset(self):
+        self.grid = np.random.randint(0, 2, self.grid.shape)
+
+    def print_board(self):
+        for row in self.grid:
+            for col in row:
+                if col == 0:
+                    print('□ ', end='')
+                else:
+                    print('■ ', end='')
+            print()
+
+
+if __name__ == '__main__':
+    game = GameOfLife()
+    round_count = 0
+    while True:
+        print(f'Round {round_count}:')
+        game.print_board()
+        game.update()
+        round_count += 1
+        input()
