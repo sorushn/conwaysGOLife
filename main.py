@@ -39,8 +39,14 @@ class GameOfLife:
     def reset(self):
         self.grid = np.random.randint(0, 2, self.grid.shape)
 
-    def print_board(self):
-        for row in self.grid:
+    def print_board(self, truncate=True):
+        if truncate:
+            x, y = np.where(self.grid == 1)
+            temp_grid = self.grid[min(x):max(x)+1, min(y):max(y)+1]
+        else:
+            temp_grid = self.grid
+
+        for row in temp_grid:
             for col in row:
                 if col == 0:
                     print('□ ', end='')
