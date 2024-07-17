@@ -39,7 +39,7 @@ class GameOfLife:
     def reset(self):
         self.grid = np.random.randint(0, 2, self.grid.shape)
 
-    def print_board(self, truncate=True):
+    def print_board(self, truncate=True, symbols=['□ ', '■ ']):
         if truncate:
             x, y = np.where(self.grid == 1)
             temp_grid = self.grid[min(x):max(x)+1, min(y):max(y)+1]
@@ -49,9 +49,9 @@ class GameOfLife:
         for row in temp_grid:
             for col in row:
                 if col == 0:
-                    print('□ ', end='')
+                    print(symbols[0], end='')
                 else:
-                    print('■ ', end='')
+                    print(symbols[1], end='')
             print()
 
 
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     round_count = 0
     while True:
         print(f'Round {round_count}:')
-        game.print_board()
+        game.print_board(False)
         game.update()
         round_count += 1
         input()
